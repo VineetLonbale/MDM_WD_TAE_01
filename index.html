@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+<meta name="description"
+content="Dynamic Weather Dashboard UI using HTML, Tailwind CSS and JavaScript">
+<title>Weather Dashboard | TAE-1</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+* {
+font-family: 'Inter', sans-serif;
+box-sizing: border-box;
+}
+html {
+scroll-behavior: smooth;
+}
+body {
+min-height: 100vh;
+margin: 0;
+color: #fff;
+background:
+radial-gradient(circle at 10% 10%, rgba(255,255,255,.20), transparent 28%),
+radial-gradient(circle at 90% 15%, rgba(56,189,248,.28), transparent 30%),
+radial-gradient(circle at 50% 100%, rgba(37,99,235,.35), transparent 38%),
+linear-gradient(135deg, #f97316 0%, #38bdf8 48%, #1d4ed8 100%);
+background-attachment: fixed;
+overflow-x: hidden;
+}
+body::before,
+body::after {
+content: "";
+position: fixed;
+z-index: -1;
+border-radius: 9999px;
+filter: blur(2px);
+pointer-events: none;
+}
+body::before {
+width: 320px;
+height: 320px;
+top: 8%;
+left: -140px;
+background: rgba(255,255,255,.12);
+}
+body::after {
+width: 420px;
+height: 420px;
+right: -180px;
+bottom: 5%;
+background: rgba(14,165,233,.16);
+}
+.main-container {
+position: relative;
+}
+.glass {
+background: linear-gradient(
+145deg,
+rgba(255,255,255,.20),
+rgba(255,255,255,.08)
+);
+backdrop-filter: blur(22px);
+-webkit-backdrop-filter: blur(22px);
+border: 1px solid rgba(255,255,255,.28);
+box-shadow:
+0 12px 40px rgba(15,23,42,.14),
+inset 0 1px 0 rgba(255,255,255,.16);
+}
+header {
+padding: 8px 0;
+}
+header .w-12 {
+box-shadow:
+0 10px 25px rgba(15,23,42,.18),
+inset 0 1px 0 rgba(255,255,255,.25);
+transition: transform .3s ease, box-shadow .3s ease;
+}
+header .w-12:hover {
+transform: translateY(-3px) rotate(-3deg);
+box-shadow: 0 16px 30px rgba(15,23,42,.24);
+}
+header h1 {
+letter-spacing: -.035em;
+text-shadow: 0 4px 18px rgba(15,23,42,.18);
+}
+.search-input {
+background: rgba(255,255,255,.14) !important;
+border: 1px solid rgba(255,255,255,.28);
+box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
+transition: all .25s ease;
+}
+.search-input:hover {
+background: rgba(255,255,255,.19) !important;
+}
+.search-input:focus {
+background: rgba(255,255,255,.22) !important;
+border-color: rgba(255,255,255,.60);
+box-shadow:
+0 0 0 4px rgba(255,255,255,.10),
+0 10px 25px rgba(15,23,42,.12);
+}
+.search-input::placeholder {
+color: rgba(255,255,255,.72);
+}
+#searchForm button {
+min-width: 92px;
+box-shadow: 0 8px 20px rgba(15,23,42,.16);
+transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
+}
+#searchForm button:hover {
+transform: translateY(-2px);
+box-shadow: 0 12px 25px rgba(15,23,42,.22);
+}
+#searchForm button:active {
+transform: translateY(0);
+}
+#errorMessage {
+background: rgba(239,68,68,.18) !important;
+backdrop-filter: blur(18px);
+box-shadow: 0 10px 30px rgba(127,29,29,.15);
+animation: slideDown .35s ease both;
+}
+section.glass {
+position: relative;
+overflow: hidden;
+}
+section.glass::before {
+content: "";
+position: absolute;
+inset: 0;
+background: linear-gradient(
+120deg,
+rgba(255,255,255,.07),
+transparent 42%,
+rgba(255,255,255,.04)
+);
+pointer-events: none;
+}
+section.glass > * {
+position: relative;
+}
+#weatherIcon {
+filter: drop-shadow(0 12px 18px rgba(15,23,42,.20));
+animation: floatingWeather 4s ease-in-out infinite;
+}
+#temperature {
+line-height: .95;
+letter-spacing: -.055em;
+text-shadow: 0 8px 28px rgba(15,23,42,.20);
+}
+#condition {
+text-shadow: 0 3px 12px rgba(15,23,42,.15);
+}
+.weather-card {
+position: relative;
+overflow: hidden;
+transition:
+transform .3s ease,
+box-shadow .3s ease,
+border-color .3s ease,
+background .3s ease;
+}
+.weather-card::before {
+content: "";
+position: absolute;
+width: 130px;
+height: 130px;
+top: -75px;
+right: -55px;
+border-radius: 50%;
+background: rgba(255,255,255,.12);
+transition: transform .4s ease;
+}
+.weather-card:hover {
+transform: translateY(-7px);
+border-color: rgba(255,255,255,.45);
+background: linear-gradient(
+145deg,
+rgba(255,255,255,.24),
+rgba(255,255,255,.10)
+);
+box-shadow:
+0 20px 38px rgba(15,23,42,.20),
+inset 0 1px 0 rgba(255,255,255,.18);
+}
+.weather-card:hover::before {
+transform: scale(1.35);
+}
+.grid.grid-cols-2 > .glass {
+transition: transform .25s ease, background .25s ease, box-shadow .25s ease;
+}
+.grid.grid-cols-2 > .glass:hover {
+transform: translateY(-4px);
+background: rgba(255,255,255,.18);
+box-shadow: 0 14px 28px rgba(15,23,42,.16);
+}
+.grid.grid-cols-2 > .glass i,
+section.sm\:grid-cols-2 i {
+filter: drop-shadow(0 4px 8px rgba(15,23,42,.14));
+}
+#resetButton {
+border: 1px solid rgba(255,255,255,.25);
+box-shadow: 0 8px 22px rgba(15,23,42,.12);
+transition: all .25s ease;
+}
+#resetButton:hover {
+transform: translateY(-2px);
+background: rgba(255,255,255,.18);
+box-shadow: 0 12px 26px rgba(15,23,42,.18);
+}
+#resetButton:active {
+transform: translateY(0);
+}
+footer {
+border-top: 1px solid rgba(255,255,255,.12);
+padding-top: 18px;
+text-shadow: 0 2px 10px rgba(15,23,42,.12);
+}
+@keyframes floatingWeather {
+0%, 100% { transform: translateY(0); }
+50% { transform: translateY(-8px); }
+}
+@keyframes slideDown {
+from {
+opacity: 0;
+transform: translateY(-8px);
+}
+to {
+opacity: 1;
+transform: translateY(0);
+}
+}
+@media (max-width: 768px) {
+header {
+padding-top: 2px;
+}
+section.glass {
+box-shadow: 0 10px 30px rgba(15,23,42,.13);
+}
+}
+@media (max-width: 640px) {
+.main-container {
+padding: 15px;
+}
+.temperature {
+font-size: 4rem;
+}
+#weatherIcon {
+font-size: 4.5rem;
+}
+.weather-card:hover {
+transform: translateY(-4px);
+}
+}
+@media (prefers-reduced-motion: reduce) {
+*,
+*::before,
+*::after {
+scroll-behavior: auto !important;
+animation-duration: .01ms !important;
+animation-iteration-count: 1 !important;
+transition-duration: .01ms !important;
+}
+}
+</style>
+</head>
+<body id="weatherBody"
+class="bg-gradient-to-br from-orange-400 via-sky-500 to-blue-600 text-white">
+<div class="main-container
+max-w-7xl
+mx-auto
+px-4
+sm:px-6
+lg:px-8
+py-6">
+<header class="flex
+flex-col
+md:flex-row
+justify-between
+items-center
+gap-5
+mb-8">
+<div class="flex
+items-center
+gap-3">
+<div class="w-12
+h-12
+rounded-2xl
+bg-white/20
+glass
+flex
+items-center
+justify-center">
+<i data-lucide="cloud-sun"
+class="w-7 h-7">
+</i>
+</div>
+<div>
+<h1 class="text-2xl
+sm:text-3xl
+font-extrabold">
+Weather Dashboard
+</h1>
+<p class="text-sm
+text-white/70">
+TAE-1 • Dynamic Weather UI
+</p>
+<p class="text-sm
+text-white/70">
+USN-IT25061
+</p>
+</div>
+</div>
+<div class="w-full
+md:w-auto">
+<form id="searchForm"
+class="flex gap-2">
+<div class="relative
+flex-1
+md:w-80">
+<i data-lucide="search"
+class="absolute
+left-4
+top-1/2
+-translate-y-1/2
+w-5 h-5
+text-white/70">
+</i>
+<input
+id="cityInput"
+type="text"
+placeholder="Search city..."
+class="search-input
+w-full
+pl-12
+pr-4
+py-3
+rounded-xl
+glass
+outline-none
+focus:ring-2
+focus:ring-white/60">
+</div>
+<button
+type="submit"
+class="px-5
+py-3
+bg-white
+text-blue-700
+font-semibold
+rounded-xl
+hover:bg-white/90
+transition">
+Search
+</button>
+</form>
+</div>
+</header>
+<div id="errorMessage"
+class="hidden
+mb-5
+bg-red-500/30
+border
+border-red-300/40
+rounded-xl
+p-4">
+<div class="flex
+items-center
+gap-3">
+<i data-lucide="alert-circle"></i>
+<span id="errorText">
+City not found.
+</span>
+</div>
+</div>
+<section class="glass
+rounded-3xl
+p-6
+sm:p-8
+mb-6">
+<div class="grid
+grid-cols-1
+lg:grid-cols-2
+gap-8
+items-center">
+<div>
+<div class="flex
+items-center
+gap-2
+mb-2">
+<i data-lucide="map-pin"
+class="w-5 h-5">
+</i>
+<span id="cityName"
+class="text-xl
+font-semibold">
+Nashik
+</span>
+</div>
+<p id="dateText"
+class="text-white/70
+mb-5">
+Loading date...
+</p>
+<div class="flex
+items-center
+gap-5">
+<div id="weatherIcon"
+class="text-7xl
+sm:text-8xl">
+☀️
+</div>
+<div>
+<div class="flex
+items-start">
+<span id="temperature"
+class="temperature
+text-7xl
+sm:text-8xl
+font-extrabold">
+29
+</span>
+<span class="text-3xl
+font-semibold
+mt-2">
+°C
+</span>
+</div>
+<p id="condition"
+class="text-xl
+font-semibold">
+Sunny
+</p>
+<p class="text-white/70">
+Feels like
+<span id="feelsLike">
+31
+</span>
+°C
+</p>
+</div>
+</div>
+</div>
+<div class="grid
+grid-cols-2
+gap-4">
+<div class="glass
+rounded-2xl
+p-5">
+<div class="flex
+items-center
+justify-between
+mb-3">
+<span class="text-white/70">
+Humidity
+</span>
+<i data-lucide="droplets"
+class="w-5 h-5">
+</i>
+</div>
+<p id="humidity"
+class="text-2xl
+font-bold">
+58%
+</p>
+</div>
+<div class="glass
+rounded-2xl
+p-5">
+<div class="flex
+items-center
+justify-between
+mb-3">
+<span class="text-white/70">
+Wind
+</span>
+<i data-lucide="wind"
+class="w-5 h-5">
+</i>
+</div>
+<p id="wind"
+class="text-2xl
+font-bold">
+14 km/h
+</p>
+</div>
+<div class="glass
+rounded-2xl
+p-5">
+<div class="flex
+items-center
+justify-between
+mb-3">
+<span class="text-white/70">
+Pressure
+</span>
+<i data-lucide="gauge"
+class="w-5 h-5">
+</i>
+</div>
+<p id="pressure"
+class="text-2xl
+font-bold">
+1012 hPa
+</p>
+</div>
+<div class="glass
+rounded-2xl
+p-5">
+<div class="flex
+items-center
+justify-between
+mb-3">
+<span class="text-white/70">
+Visibility
+</span>
+<i data-lucide="eye"
+class="w-5 h-5">
+</i>
+</div>
+<p id="visibility"
+class="text-2xl
+font-bold">
+8 km
+</p>
+</div>
+</div>
+</div>
+</section>
+<section class="grid
+grid-cols-1
+sm:grid-cols-2
+gap-4
+mb-6">
+<div class="glass
+rounded-2xl
+p-5
+flex
+items-center
+gap-4">
+<div class="w-12
+h-12
+rounded-xl
+bg-orange-400/30
+flex
+items-center
+justify-center">
+<i data-lucide="sunrise"
+class="w-6 h-6">
+</i>
+</div>
+<div>
+<p class="text-white/60
+text-sm">
+Sunrise
+</p>
+<p id="sunrise"
+class="text-xl
+font-bold">
+6:12 AM
+</p>
+</div>
+</div>
+<div class="glass
+rounded-2xl
+p-5
+flex
+items-center
+gap-4">
+<div class="w-12
+h-12
+rounded-xl
+bg-indigo-400/30
+flex
+items-center
+justify-center">
+<i data-lucide="sunset"
+class="w-6 h-6">
+</i>
+</div>
+<div>
+<p class="text-white/60
+text-sm">
+Sunset
+</p>
+<p id="sunset"
+class="text-xl
+font-bold">
+6:58 PM
+</p>
+</div>
+</div>
+</section>
+<section>
+<div class="flex
+justify-between
+items-center
+mb-5">
+<div>
+<h2 class="text-2xl
+font-bold">
+5-Day Forecast
+</h2>
+<p class="text-white/60
+text-sm">
+Simulated forecast data
+</p>
+</div>
+<button id="resetButton"
+class="flex
+items-center
+gap-2
+px-4
+py-2
+glass
+rounded-xl
+hover:bg-white/20
+transition">
+<i data-lucide="refresh-cw"
+class="w-4 h-4">
+</i>
+Reset
+</button>
+</div>
+<div id="forecastContainer"
+class="grid
+grid-cols-1
+sm:grid-cols-2
+lg:grid-cols-5
+gap-4">
+</div>
+</section>
+<footer class="text-center
+text-white/60
+text-sm
+mt-10
+pb-4">
+<p>
+Dynamic Weather Dashboard
+UI
+</p>
+<p class="mt-1">
+Built using HTML,
+Tailwind CSS & JavaScript
+</p>
+<p class="mt-1">
+USN-IT25061
+</p>
+</footer>
+</div>
+<script>
+const weatherData = {
+"nagpur": {
+city: "Nagpur",
+temperature: 30,
+feelsLike: 31,
+condition: "Sunny",
+icon: "☀️",
+humidity: 58,
+wind: 14,
+pressure: 1012,
+visibility: 8,
+sunrise: "6:12 AM",
+sunset: "6:58 PM",
+forecast: [
+{
+day: "Today",
+icon: "☀️",
+condition: "Sunny",
+high: 29,
+low: 21
+},
+{
+day: "Sun",
+icon: "🌤️",
+condition: "Partly Cloudy",
+high: 30,
+low: 22
+},
+{
+day: "Mon",
+icon: "🌦️",
+condition: "Light Rain",
+high: 27,
+low: 21
+},
+{
+day: "Tue",
+icon: "🌧️",
+condition: "Rainy",
+high: 25,
+low: 20
+},
+{
+day: "Wed",
+icon: "⛅",
+condition: "Cloudy",
+high: 28,
+low: 21
+}
+]
+},
+"mumbai": {
+city: "Mumbai",
+temperature: 28,
+feelsLike: 32,
+condition: "Cloudy",
+icon: "☁️",
+humidity: 76,
+wind: 18,
+pressure: 1008,
+visibility: 7,
+sunrise: "6:25 AM",
+sunset: "7:05 PM",
+forecast: [
+{
+day: "Today",
+icon: "☁️",
+condition: "Cloudy",
+high: 28,
+low: 24
+},
+{
+day: "Sun",
+icon: "🌧️",
+condition: "Rainy",
+high: 27,
+low: 24
+},
+{
+day: "Mon",
+icon: "🌦️",
+condition: "Showers",
+high: 28,
+low: 23
+},
+{
+day: "Tue",
+icon: "🌧️",
+condition: "Rainy",
+high: 26,
+low: 23
+},
+{
+day: "Wed",
+icon: "☁️",
+condition: "Cloudy",
+high: 28,
+low: 24
+}
+]
+},
+"pune": {
+city: "Pune",
+temperature: 27,
+feelsLike: 28,
+condition: "Partly Cloudy",
+icon: "🌤️",
+humidity: 61,
+wind: 12,
+pressure: 1011,
+visibility: 9,
+sunrise: "6:18 AM",
+sunset: "6:54 PM",
+forecast: [
+{
+day: "Today",
+icon: "🌤️",
+condition: "Partly Cloudy",
+high: 27,
+low: 20
+},
+{
+day: "Sun",
+icon: "☀️",
+condition: "Sunny",
+high: 29,
+low: 20
+},
+{
+day: "Mon",
+icon: "🌦️",
+condition: "Showers",
+high: 26,
+low: 20
+},
+{
+day: "Tue",
+icon: "🌧️",
+condition: "Rainy",
+high: 25,
+low: 19
+},
+{
+day: "Wed",
+icon: "⛅",
+condition: "Cloudy",
+high: 27,
+low: 20
+}
+]
+},
+"delhi": {
+city: "Delhi",
+temperature: 34,
+feelsLike: 36,
+condition: "Sunny",
+icon: "☀️",
+humidity: 42,
+wind: 11,
+pressure: 1007,
+visibility: 6,
+sunrise: "5:58 AM",
+sunset: "6:48 PM",
+forecast: [
+{
+day: "Today",
+icon: "☀️",
+condition: "Sunny",
+high: 34,
+low: 25
+},
+{
+day: "Sun",
+icon: "☀️",
+condition: "Sunny",
+high: 35,
+low: 26
+},
+{
+day: "Mon",
+icon: "🌤️",
+condition: "Partly Cloudy",
+high: 33,
+low: 25
+},
+{
+day: "Tue",
+icon: "⛅",
+condition: "Cloudy",
+high: 32,
+low: 24
+},
+{
+day: "Wed",
+icon: "🌦️",
+condition: "Showers",
+high: 31,
+low: 24
+}
+]
+},
+"bangalore": {
+city: "Bangalore",
+temperature: 25,
+feelsLike: 26,
+condition: "Cloudy",
+icon: "☁️",
+humidity: 68,
+wind: 15,
+pressure: 1013,
+visibility: 8,
+sunrise: "6:12 AM",
+sunset: "6:30 PM",
+forecast: [
+{
+day: "Today",
+icon: "☁️",
+condition: "Cloudy",
+high: 25,
+low: 19
+},
+{
+day: "Sun",
+icon: "🌦️",
+condition: "Showers",
+high: 24,
+low: 19
+},
+{
+day: "Mon",
+icon: "🌧️",
+condition: "Rainy",
+high: 23,
+low: 18
+},
+{
+day: "Tue",
+icon: "⛅",
+condition: "Cloudy",
+high: 25,
+low: 19
+},
+{
+day: "Wed",
+icon: "🌤️",
+condition: "Partly Cloudy",
+high: 26,
+low: 19
+}
+]
+},
+"hyderabad": {
+city: "Hyderabad",
+temperature: 31,
+feelsLike: 33,
+condition: "Partly Cloudy",
+icon: "🌤️",
+humidity: 53,
+wind: 13,
+pressure: 1010,
+visibility: 8,
+sunrise: "6:02 AM",
+sunset: "6:42 PM",
+forecast: [
+{
+day: "Today",
+icon: "🌤️",
+condition: "Partly Cloudy",
+high: 31,
+low: 22
+},
+{
+day: "Sun",
+icon: "☀️",
+condition: "Sunny",
+high: 32,
+low: 22
+},
+{
+day: "Mon",
+icon: "⛅",
+condition: "Cloudy",
+high: 30,
+low: 22
+},
+{
+day: "Tue",
+icon: "🌦️",
+condition: "Showers",
+high: 29,
+low: 21
+},
+{
+day: "Wed",
+icon: "🌧️",
+condition: "Rainy",
+high: 28,
+low: 21
+}
+]
+}
+};
+const cityInput =
+document.getElementById("cityInput");
+const searchForm =
+document.getElementById("searchForm");
+const cityName =
+document.getElementById("cityName");
+const temperature =
+document.getElementById("temperature");
+const feelsLike =
+document.getElementById("feelsLike");
+const condition =
+document.getElementById("condition");
+const weatherIcon =
+document.getElementById("weatherIcon");
+const humidity =
+document.getElementById("humidity");
+const wind =
+document.getElementById("wind");
+const pressure =
+document.getElementById("pressure");
+const visibility =
+document.getElementById("visibility");
+const sunrise =
+document.getElementById("sunrise");
+const sunset =
+document.getElementById("sunset");
+const forecastContainer =
+document.getElementById(
+"forecastContainer"
+);
+const errorMessage =
+document.getElementById(
+"errorMessage"
+);
+const errorText =
+document.getElementById(
+"errorText"
+);
+const resetButton =
+document.getElementById(
+"resetButton"
+);
+function displayForecast(forecast) {
+forecastContainer.innerHTML = "";
+forecast.forEach(day => {
+const card =
+document.createElement("div");
+card.className =
+"weather-card glass rounded-2xl p-5 text-center";
+card.innerHTML = `
+<p class="font-semibold mb-4">
+${day.day}
+</p>
+<div class="text-5xl mb-4">
+${day.icon}
+</div>
+<p class="text-sm
+text-white/70
+mb-4">
+${day.condition}
+</p>
+<div class="flex
+justify-center
+gap-3">
+<span class="font-bold">
+${day.high}°
+</span>
+<span class="text-white/50">
+${day.low}°
+</span>
+</div>
+`;
+forecastContainer.appendChild(
+card
+);
+});
+}
+function updateDashboard(data) {
+cityName.textContent =
+data.city;
+temperature.textContent =
+data.temperature;
+feelsLike.textContent =
+data.feelsLike;
+condition.textContent =
+data.condition;
+weatherIcon.textContent =
+data.icon;
+humidity.textContent =
+data.humidity + "%";
+wind.textContent =
+data.wind + " km/h";
+pressure.textContent =
+data.pressure + " hPa";
+visibility.textContent =
+data.visibility + " km";
+sunrise.textContent =
+data.sunrise;
+sunset.textContent =
+data.sunset;
+displayForecast(
+data.forecast
+);
+errorMessage.classList.add(
+"hidden"
+);
+}
+function searchCity(city) {
+const searchedCity =
+city.trim().toLowerCase();
+if (
+weatherData[searchedCity]
+) {
+updateDashboard(
+weatherData[searchedCity]
+);
+}
+else {
+errorText.textContent =
+"City not found. Try Nagpur, Mumbai, Pune, Delhi, Bangalore or Hyderabad.";
+errorMessage.classList.remove(
+"hidden"
+);
+}
+}
+searchForm.addEventListener(
+"submit",
+function(event) {
+event.preventDefault();
+if (
+cityInput.value.trim() === ""
+) {
+errorText.textContent =
+"Please enter a city name.";
+errorMessage.classList.remove(
+"hidden"
+);
+return;
+}
+searchCity(
+cityInput.value
+);
+}
+);
+resetButton.addEventListener(
+"click",
+function() {
+cityInput.value = "";
+updateDashboard(
+weatherData["nagpur"]
+);
+}
+);
+function displayDate() {
+const date =
+new Date();
+const options = {
+weekday: "long",
+month: "long",
+day: "numeric",
+year: "numeric"
+};
+document.getElementById(
+"dateText"
+).textContent =
+date.toLocaleDateString(
+"en-US",
+options
+);
+}
+displayDate();
+updateDashboard(
+weatherData["nagpur"]
+);
+lucide.createIcons();
+</script>
+</body>
+</html>
